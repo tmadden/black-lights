@@ -1,0 +1,6 @@
+pywizlight
+pyyaml
+colour
+asyncio_dgram
+pynput
+python-kasa
