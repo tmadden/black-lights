@@ -17,10 +17,10 @@ async def pulsate(lights):
         colors.append(colors[-1])
 
     while True:
-        i = random.choice(range(24))
+        i = random.choice(range(6))
         j = i
         while i == j:
-            j = random.choice(range(24))
+            j = random.choice(range(6))
         loop = PeriodicLoop(0.1)
         # for b in range(6):
         #     for k in [i, j]:

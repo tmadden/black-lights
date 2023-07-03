@@ -3,14 +3,24 @@ import yaml
 import asyncio
 import random
 
-import time
+from utilities import PeriodicLoop
 
-with open("dimmers.yml", "r") as f:
-    dimmer_ips = yaml.safe_load(f)
+dimmers = []
 
-dimmers = [kasa.SmartPlug(ip) for _, ip in dimmer_ips.items()]
-for d in dimmers:
-    d.modules = {}
+async def init():
+    with open("dimmers.yml", "r") as f:
+        dimmer_ips = yaml.safe_load(f)
+
+    global dimmers
+    dimmers = [kasa.SmartPlug(ip) for _, ip in dimmer_ips.items()]
+    for d in dimmers:
+        d.modules = {}
+
+    for d in dimmers:
+        await d.update()
+        await setd(d, False)
+
+    await asyncio.sleep(0.1)
 
 async def setd(device, state):
     if state:
@@ -22,39 +32,6 @@ async def setd(device, state):
 async def seti(i, state):
     await setd(dimmers[i % len(dimmers)], state)
 
-async def init():
-    for d in dimmers:
-        await d.update()
-        await setd(d, False)
-
-    await asyncio.sleep(0.2)
-
-interrupt_pattern_loop = False
-
-
-class PeriodicLoop:
-
-    def __init__(self, period, length=None):
-        self.period = period
-        self.next_frame_time = time.perf_counter()
-        if length:
-            self.finish_time = self.next_frame_time + length
-        else:
-            self.finish_time = None
-
-    async def next(self):
-        self.next_frame_time += self.period
-        now = time.perf_counter()
-        while now < self.next_frame_time and not interrupt_pattern_loop:
-            await asyncio.sleep(0.005)
-            now = time.perf_counter()
-
-    def done(self):
-        if interrupt_pattern_loop:
-            return True
-        if self.finish_time:
-            return self.next_frame_time >= self.finish_time
-        return False
 
 async def wanderer():
     p = 0
@@ -125,9 +102,3 @@ async def shots():
             await asyncio.sleep(0.05)
         await seti(p, False)
         await loop.next()
-
-async def the_show():
-    await init()
-    await shots()
-
-asyncio.run(the_show())

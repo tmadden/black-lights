@@ -2,23 +2,21 @@ import yaml
 import asyncio
 import time
 import random
+
 from utilities import reset_all, the_palettes
 import utilities
 
-from light import Light
+from wiz import Light
 
-from patterns.connect_four import connect_four
-from patterns.progression import progression
-from patterns.snake import snake
-from patterns.pulsate import pulsate
-from patterns.rain import rain
-from patterns.sparkle import sparkle
+from sparkle import sparkle
+from pulsate import pulsate
+from light.fairies import fairies
 
-test_pattern = rain
+import dark
 
-all_patterns = [progression, snake]
+test_pattern = fairies
 
-# all_patterns = [show] + show_patterns
+all_patterns = [pulsate]
 
 current_pattern_index = 0
 current_palette_index = 0
@@ -37,16 +35,17 @@ async def control_loop(lights):
 
 
 async def main():
+    await dark.init()
+
     with open("ips.yml", "r") as file:
         ips = yaml.safe_load(file)
-
     lights = [Light(ip) for ip in ips]
 
     utilities.set_active_palette(the_palettes[0])
 
     await asyncio.gather(*[light.connect() for light in lights])
 
-    await asyncio.gather(control_loop(lights),
+    await asyncio.gather(control_loop(lights), dark.dasher(),
                          *[light.comm_loop() for light in lights])
 
 
@@ -93,5 +92,4 @@ mouse_listener = mouse.Listener(on_move=on_move,
                                 suppress=True)
 mouse_listener.start()
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+asyncio.run(main())
