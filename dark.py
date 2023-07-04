@@ -34,6 +34,9 @@ async def setd(device, state):
 async def seti(i, state):
     await setd(dimmers[i % len(dimmers)], state)
 
+async def safe_seti(i, state):
+    if i >= 0 and i < len(dimmers):
+        await setd(dimmers[i], state)
 
 async def all_on():
     n = len(dimmers)
@@ -104,14 +107,13 @@ async def fill():
 async def shots():
     n = len(dimmers)
 
-    loop = PeriodicLoop(1)
+    loop = PeriodicLoop(6)
 
     while not loop.done():
-        l = 2
-        p, v = random.choice([(-l, 1), (n, -1)])
-        for i in range(n):
-            await asyncio.gather(seti(p, False), seti(p + v, True))
+        l = 2 + random.randrange(4)
+        p, v = random.choice([(-1, 1), (n, -1)])
+        for i in range(n + l):
+            await asyncio.gather(safe_seti(p - v * l, False), safe_seti(p, True))
             p += v
             await asyncio.sleep(0.05)
-        await seti(p, False)
         await loop.next()

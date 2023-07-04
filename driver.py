@@ -52,10 +52,10 @@ async def main():
     # ips = []
     # while len(ips) != 6:
     #     ips = await discover.discover_wiz()
-    lights = [Light(ip) for ip in ips]
     print("initializing wiz lights...")
     while True:
         try:
+            lights = [Light(ip) for ip in ips]
             await asyncio.gather(*[light.connect() for light in lights])
             break
         except:
@@ -64,7 +64,7 @@ async def main():
     utilities.set_active_palette(the_palettes[0])
 
     print("control loop...")
-    await asyncio.gather(control_loop(lights), dark.dasher(),
+    await asyncio.gather(control_loop(lights), dark.shots(),
                          *[light.comm_loop() for light in lights])
 
 
