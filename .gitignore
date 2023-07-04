@@ -129,6 +129,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# lights
-ips.yml
-dimmers.yml

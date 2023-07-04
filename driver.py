@@ -8,6 +8,7 @@ import utilities
 
 from wiz import Light
 
+import discover
 from sparkle import sparkle
 from pulsate import pulsate
 from light.fairies import fairies
@@ -35,16 +36,29 @@ async def control_loop(lights):
 
 
 async def main():
-    await dark.init()
+
+    with open("dimmers.yml", "r") as f:
+        dimmer_ips = yaml.safe_load(f)
+    # print("discovering kasa lights...")
+    # dimmer_ips = {}
+    # while len(dimmer_ips) != 6:
+    #     dimmer_ips = await discover.discover_kasa()
+    await dark.init(dimmer_ips)
 
     with open("ips.yml", "r") as file:
         ips = yaml.safe_load(file)
+    ip = ips[:6]
+    # print("discovering wiz lights...")
+    # ips = []
+    # while len(ips) != 6:
+    #     ips = await discover.discover_wiz()
     lights = [Light(ip) for ip in ips]
+    print("initializing wiz lights...")
+    await asyncio.gather(*[light.connect() for light in lights])
 
     utilities.set_active_palette(the_palettes[0])
 
-    await asyncio.gather(*[light.connect() for light in lights])
-
+    print("control loop...")
     await asyncio.gather(control_loop(lights), dark.dasher(),
                          *[light.comm_loop() for light in lights])
 

@@ -9,19 +9,14 @@ async def discover_kasa():
     dimmers = {}
     for ip, dev in devices.items():
         dimmers[dev.alias] = ip
-
-    print(yaml.dump(dimmers, default_flow_style=False), end='')
-
-    with open('dimmers.yml', 'w') as f:
-        yaml.dump(dimmers, f, default_flow_style=False)
+    return dimmers
 
 async def discover_wiz():
     with open("macs.yml", "r") as file:
         macs = yaml.safe_load(file)
 
-    bulbs = await discovery.discover_lights(broadcast_space="192.168.11.255", wait_time=20)
+    bulbs = await discovery.discover_lights(broadcast_space="192.168.11.255", wait_time=12)
 
-    print(len(bulbs))
     print(yaml.dump([(bulb.ip, bulb.mac) for bulb in bulbs]))
 
     ips = []
@@ -29,12 +24,21 @@ async def discover_wiz():
         print(mac)
         ips.append(next(bulb.ip for bulb in bulbs if bulb.mac == mac))
 
+    return ips
+
+async def main():
+    dimmers = await discover_kasa()
+
+    print(yaml.dump(dimmers, default_flow_style=False), end='')
+
+    with open('dimmers.yml', 'w') as f:
+        yaml.dump(dimmers, f, default_flow_style=False)
+
+    ips = await discover_wiz()
+
     with open('ips.yml', 'w') as file:
         yaml.dump(ips, file, default_flow_style=False)
 
 
-async def main():
-    await discover_kasa()
-    await discover_wiz()
-
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

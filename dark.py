@@ -7,10 +7,7 @@ from utilities import PeriodicLoop
 
 dimmers = []
 
-async def init():
-    with open("dimmers.yml", "r") as f:
-        dimmer_ips = yaml.safe_load(f)
-
+async def init(dimmer_ips):
     global dimmers
     dimmers = [kasa.SmartPlug(ip) for _, ip in dimmer_ips.items()]
     for d in dimmers:
@@ -20,10 +17,10 @@ async def init():
         await d.update()
         await setd(d, False)
 
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.2)
 
 async def setd(device, state):
-    if state:
+    if not state:
         await device.turn_on()
     else:
         await device.turn_off()
@@ -33,6 +30,17 @@ async def seti(i, state):
     await setd(dimmers[i % len(dimmers)], state)
 
 
+async def all_on():
+    n = len(dimmers)
+
+    loop = PeriodicLoop(0.15)
+
+    while not loop.done():
+        for i in range(n):
+            await seti(i, True)
+        await loop.next()
+
+
 async def wanderer():
     p = 0
     v = 1
@@ -40,7 +48,7 @@ async def wanderer():
 
     loop = PeriodicLoop(0.15)
 
-    for i in range(500):
+    while not loop.done():
         if random.random() < 0.3:
             v = -v
         if p + v < 0:
@@ -56,11 +64,11 @@ async def dasher():
     p = 0
     n = len(dimmers)
 
-    loop = PeriodicLoop(1)
+    loop = PeriodicLoop(6)
 
     while not loop.done():
         q = p
-        while q == p:
+        while abs(q - p) < 2:
             q = random.randrange(n)
         while p != q:
             v = 1 if p < q else -1
@@ -89,13 +97,13 @@ async def fill():
 
 
 async def shots():
-    p = 0
     n = len(dimmers)
 
     loop = PeriodicLoop(1)
 
     while not loop.done():
-        p, v = random.choice([(-1, 1), (n, -1)])
+        l = 2
+        p, v = random.choice([(-l, 1), (n, -1)])
         for i in range(n):
             await asyncio.gather(seti(p, False), seti(p + v, True))
             p += v
