@@ -4,3 +4,4 @@ colour
 asyncio_dgram
 pynput
 python-kasa
+requests

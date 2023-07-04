@@ -112,4 +112,13 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+import requests
+
+while True:
+    try:
+        requests.get("http://192.168.11.1")
+        break
+    except:
+        continue
+
 asyncio.run(main())
