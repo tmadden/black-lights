@@ -4,7 +4,7 @@ import random
 from utilities import *
 
 async def fairies(lights):
-    background_color = rgb(32, 32, 255)
+    background_color = rgb(64, 64, 255)
     fairy_colors = [cold_white, warm_white]
 
     for light in lights:
