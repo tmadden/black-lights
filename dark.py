@@ -9,7 +9,12 @@ dimmers = []
 
 async def init(dimmer_ips):
     global dimmers
-    dimmers = [kasa.SmartPlug(ip) for _, ip in dimmer_ips.items()]
+    while True:
+        try:
+            dimmers = [kasa.SmartPlug(ip) for _, ip in dimmer_ips.items()]
+            break
+        except:
+            continue
     for d in dimmers:
         d.modules = {}
 

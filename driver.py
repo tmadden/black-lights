@@ -54,7 +54,12 @@ async def main():
     #     ips = await discover.discover_wiz()
     lights = [Light(ip) for ip in ips]
     print("initializing wiz lights...")
-    await asyncio.gather(*[light.connect() for light in lights])
+    while True:
+        try:
+            await asyncio.gather(*[light.connect() for light in lights])
+            break
+        except:
+            continue
 
     utilities.set_active_palette(the_palettes[0])
 
