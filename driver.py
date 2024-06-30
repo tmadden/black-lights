@@ -121,7 +121,7 @@ import requests
 
 while True:
     try:
-        requests.get("http://192.168.11.1")
+        requests.get("http://192.168.8.1")
         break
     except:
         continue

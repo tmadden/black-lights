@@ -3,5 +3,5 @@ pyyaml
 colour
 asyncio_dgram
 pynput
-python-kasa
+python-kasa==0.6.2.1
 requests

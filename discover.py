@@ -5,7 +5,7 @@ import kasa
 from pywizlight import discovery
 
 async def discover_kasa():
-    devices = await kasa.Discover.discover(target='192.168.11.255')
+    devices = await kasa.Discover.discover(target='192.168.8.255')
     dimmers = {}
     for ip, dev in devices.items():
         dimmers[dev.alias] = ip
@@ -15,7 +15,7 @@ async def discover_wiz():
     with open("macs.yml", "r") as file:
         macs = yaml.safe_load(file)
 
-    bulbs = await discovery.discover_lights(broadcast_space="192.168.11.255", wait_time=12)
+    bulbs = await discovery.discover_lights(broadcast_space="192.168.8.255", wait_time=12)
 
     print(yaml.dump([(bulb.ip, bulb.mac) for bulb in bulbs]))
 
